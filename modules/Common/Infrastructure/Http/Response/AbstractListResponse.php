@@ -38,7 +38,7 @@ abstract class AbstractListResponse extends AbstractResponse implements Iterator
      *
      * @return class-string
      */
-    abstract static protected function itemClass(): string;
+    abstract protected static function itemClass(): string;
 
     /**
      * Фабрика списка из доменной коллекции/итерируемых сущностей.
