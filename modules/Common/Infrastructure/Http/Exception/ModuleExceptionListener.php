@@ -35,6 +35,10 @@ final readonly class ModuleExceptionListener implements EventSubscriberInterface
 
     public function onException(ExceptionEvent $event): void
     {
+        if ($event->hasResponse()) {
+            return;
+        }
+
         $throwable = $event->getThrowable();
 
         $response = match (true) {
