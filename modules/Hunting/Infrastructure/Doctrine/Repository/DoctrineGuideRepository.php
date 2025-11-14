@@ -4,16 +4,16 @@ declare(strict_types=1);
 namespace Modules\Hunting\Infrastructure\Doctrine\Repository;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Modules\Hunting\Domain\Collection\GuideCollection;
 use Modules\Hunting\Domain\Entity\Guide;
 use Modules\Hunting\Domain\Exception\GuideNotFound;
 use Modules\Hunting\Domain\Repository\GuideRepositoryInterface;
 
-final class DoctrineGuideRepository implements GuideRepositoryInterface
+final readonly class DoctrineGuideRepository implements GuideRepositoryInterface
 {
-    public function __construct(private readonly EntityManagerInterface $em) {}
+    public function __construct(private EntityManagerInterface $em) {}
 
-    /** @return list<Guide> */
-    public function findActive(?int $minExperience = null): array
+    public function findActive(?int $minExperience = null): GuideCollection
     {
         $qb = $this->em->createQueryBuilder()
             ->select('g')
@@ -27,9 +27,10 @@ final class DoctrineGuideRepository implements GuideRepositoryInterface
             $qb->andWhere('g.experienceYears >= :min')->setParameter('min', $minExperience);
         }
 
-        /** @var list<Guide> $res */
-        $res = $qb->getQuery()->getResult();
-        return $res;
+        /** @var list<Guide> $result */
+        $result = $qb->getQuery()->getResult();
+
+        return GuideCollection::from($result);
     }
 
     public function getById(int $id): Guide
@@ -38,6 +39,7 @@ final class DoctrineGuideRepository implements GuideRepositoryInterface
         if (!$entity instanceof Guide) {
             throw new GuideNotFound($id);
         }
+
         return $entity;
     }
 

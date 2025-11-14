@@ -11,9 +11,9 @@ use Modules\Hunting\Domain\Entity\Guide;
 use Modules\Hunting\Domain\Entity\HuntingBooking;
 use Modules\Hunting\Domain\Repository\BookingRepositoryInterface;
 
-final class DoctrineBookingRepository implements BookingRepositoryInterface
+final readonly class DoctrineBookingRepository implements BookingRepositoryInterface
 {
-    public function __construct(private readonly EntityManagerInterface $em)
+    public function __construct(private EntityManagerInterface $em)
     {
     }
 

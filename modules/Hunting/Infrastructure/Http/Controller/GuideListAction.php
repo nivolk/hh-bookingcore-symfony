@@ -7,7 +7,7 @@ namespace Modules\Hunting\Infrastructure\Http\Controller;
 use Modules\Common\Infrastructure\Http\Responder\ApiResponder;
 use Modules\Hunting\Domain\Repository\GuideRepositoryInterface;
 use Modules\Hunting\Infrastructure\Http\Request\GuidesListRequest;
-use Modules\Hunting\Infrastructure\Http\Response\GuideResponse;
+use Modules\Hunting\Infrastructure\Http\Response\GuideListResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
@@ -23,13 +23,10 @@ final readonly class GuideListAction
 
     public function __invoke(#[MapQueryString] GuidesListRequest $query): JsonResponse
     {
-        $items = $this->guides->findActive($query->minExperience);
+        $collection = $this->guides->findActive($query->minExperience);
 
-        $responses = array_map(
-            static fn($guide) => GuideResponse::fromEntity($guide),
-            $items
+        return $this->responder->success(
+            GuideListResponse::fromCollection($collection)
         );
-
-        return $this->responder->success($responses);
     }
 }
