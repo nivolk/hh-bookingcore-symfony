@@ -4,29 +4,30 @@ declare(strict_types=1);
 
 namespace Modules\Hunting\Infrastructure\Http\Response;
 
+use Modules\Common\Infrastructure\Http\Response\AbstractItemResponse;
 use Modules\Hunting\Domain\Entity\HuntingBooking;
 
-final readonly class HuntingBookingCreateResponse
+final class HuntingBookingCreateResponse extends AbstractItemResponse
 {
     public function __construct(
-        public int $id,
-        public string $tourName,
-        public string $hunterName,
-        public string $date,
-        public int $participantsCount,
-        public GuideResponse $guide
+        public readonly int $id,
+        public readonly string $tourName,
+        public readonly string $hunterName,
+        public readonly string $date,
+        public readonly int $participantsCount,
+        public readonly GuideResponse $guide
     ) {
     }
 
-    public static function fromEntity(HuntingBooking $b): self
+    public static function fromEntity(HuntingBooking $booking): self
     {
         return new self(
-            id: $b->getId() ?? 0,
-            tourName: $b->getTourName(),
-            hunterName: $b->getHunterName(),
-            date: $b->getDate()->format('Y-m-d'),
-            participantsCount: $b->getParticipantsCount(),
-            guide: GuideResponse::fromEntity($b->getGuide())
+            id: $booking->getId() ?? 0,
+            tourName: $booking->getTourName(),
+            hunterName: $booking->getHunterName(),
+            date: $booking->getDate()->format('Y-m-d'),
+            participantsCount: $booking->getParticipantsCount(),
+            guide: GuideResponse::fromEntity($booking->getGuide())
         );
     }
 }

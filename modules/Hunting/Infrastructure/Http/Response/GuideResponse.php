@@ -4,25 +4,26 @@ declare(strict_types=1);
 
 namespace Modules\Hunting\Infrastructure\Http\Response;
 
+use Modules\Common\Infrastructure\Http\Response\AbstractItemResponse;
 use Modules\Hunting\Domain\Entity\Guide;
 
-final readonly class GuideResponse
+final class GuideResponse extends AbstractItemResponse
 {
     public function __construct(
-        public int $id,
-        public string $name,
-        public int $experienceYears,
-        public bool $isActive
+        public readonly int $id,
+        public readonly string $name,
+        public readonly int $experienceYears,
+        public readonly bool $isActive
     ) {
     }
 
-    public static function fromEntity(Guide $g): self
+    public static function fromEntity(Guide $guide): self
     {
         return new self(
-            id: $g->getId() ?? 0,
-            name: $g->getName(),
-            experienceYears: $g->getExperienceYears(),
-            isActive: $g->isActive()
+            id: $guide->getId() ?? 0,
+            name: $guide->getName(),
+            experienceYears: $guide->getExperienceYears(),
+            isActive: $guide->isActive()
         );
     }
 }
