@@ -6,13 +6,16 @@ namespace Modules\Common\Infrastructure\Http\Exception;
 
 use Doctrine\DBAL\Exception as DBALException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Serializer\Exception\ExceptionInterface as SerializerExceptionInterface;
 use Symfony\Component\Serializer\Exception\NotEncodableValueException;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
+use Throwable;
 
 /**
  * Глобальный обработчик исключений для JSON API.
@@ -20,7 +23,8 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
 final readonly class ModuleExceptionListener implements EventSubscriberInterface
 {
     public function __construct(
-        private ProblemDetailsFactory $problemDetails
+        private ProblemDetailsFactory $problemDetails,
+        private LoggerInterface $logger,
     ) {
     }
 
@@ -46,12 +50,10 @@ final readonly class ModuleExceptionListener implements EventSubscriberInterface
             $throwable instanceof DBALException =>
             $this->handleDbalException($throwable, $event),
 
-            default => $this->problemDetails->create(
-                $event->getRequest(),
-                500,
-                'Internal Server Error',
-                'Unexpected error'
-            ),
+            $throwable instanceof SerializerExceptionInterface =>
+            $this->handleSerializerException($throwable, $event),
+
+            default => $this->handleFallbackException($throwable, $event),
         };
 
         $event->setResponse($response);
@@ -60,7 +62,7 @@ final readonly class ModuleExceptionListener implements EventSubscriberInterface
     private function handleValidationException(
         ValidationFailedException $throwable,
         ExceptionEvent $event
-    ): ?JsonResponse {
+    ): JsonResponse {
         $violations = $throwable->getViolations();
         $errors = [];
 
@@ -72,47 +74,93 @@ final readonly class ModuleExceptionListener implements EventSubscriberInterface
         }
 
         return $this->problemDetails->create(
-            $event->getRequest(),
-            422,
-            'Validation failed',
-            'Request validation failed',
-            $errors
+            request: $event->getRequest(),
+            status: 422,
+            title: 'Validation failed',
+            detail: 'Request validation failed',
+            errors: $errors
         );
     }
 
     private function handleBadRequestException(
         NotEncodableValueException|BadRequestHttpException $throwable,
         ExceptionEvent $event
-    ): ?JsonResponse {
+    ): JsonResponse {
         return $this->problemDetails->create(
-            $event->getRequest(),
-            400,
-            'Bad request',
-            $throwable->getMessage() ?: 'Malformed request body'
+            request: $event->getRequest(),
+            status: 400,
+            title: 'Bad request',
+            detail: $throwable->getMessage() ?: 'Malformed request body'
         );
     }
 
     private function handleUniqueConstraintException(
         UniqueConstraintViolationException $throwable,
         ExceptionEvent $event
-    ): ?JsonResponse {
+    ): JsonResponse {
         return $this->problemDetails->create(
-            $event->getRequest(),
-            409,
-            'Conflict',
-            'Request conflicts with existing data'
+            request: $event->getRequest(),
+            status: 409,
+            title: 'Conflict',
+            detail: 'Request conflicts with existing data'
         );
     }
 
     private function handleDbalException(
         DBALException $throwable,
         ExceptionEvent $event
-    ): ?JsonResponse {
+    ): JsonResponse {
+
+        $request = $event->getRequest();
+
+        $this->logger->error('Database error', [
+            'path' => $request->getPathInfo(),
+            'exception' => $throwable,
+        ]);
+
         return $this->problemDetails->create(
-            $event->getRequest(),
-            500,
-            'Database error',
-            $throwable->getMessage()
+            request: $request,
+            status: 500,
+            title: 'Database error',
+            detail: $throwable->getMessage()
+        );
+    }
+
+    private function handleSerializerException(
+        SerializerExceptionInterface $throwable,
+        ExceptionEvent $event
+    ): JsonResponse {
+        $request = $event->getRequest();
+
+        $this->logger->error('Serialization error', [
+            'path' => $request->getPathInfo(),
+            'exception' => $throwable,
+        ]);
+
+        return $this->problemDetails->create(
+            request: $request,
+            status: 500,
+            title: 'Serialization error',
+            detail: $throwable->getMessage()
+        );
+    }
+
+    private function handleFallbackException(
+        Throwable $throwable,
+        ExceptionEvent $event
+    ): JsonResponse {
+        $request = $event->getRequest();
+
+        $this->logger->error('Unhandled exception', [
+            'path' => $request->getPathInfo(),
+            'exception' => $throwable,
+        ]);
+
+        return $this->problemDetails->create(
+            request: $request,
+            status: 500,
+            title: 'Internal Server Error',
+            detail: 'Unexpected error'
         );
     }
 }
