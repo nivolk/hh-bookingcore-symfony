@@ -1,9 +1,65 @@
 nelmio_api_doc:
     documentation:
         info:
-            title: My App
-            description: This is an awesome app!
+            title: BookingCore
+            description: Модуль бронирования охотничьих туров.
             version: 1.0.0
+        components:
+            schemas:
+                ProblemDetails:
+                    type: object
+                    description: 'RFC 7807-совместимое описание ошибки (application/problem+json).'
+                    properties:
+                        type:
+                            type: string
+                            description: 'URI типа ошибки. В простых случаях "about:blank".'
+                            example: 'about:blank'
+                        title:
+                            type: string
+                            description: 'Краткое название проблемы, напр. "Entity not found".'
+                            example: 'Error'
+                        status:
+                            type: integer
+                            format: int32
+                            description: 'HTTP статус ошибки.'
+                            example: 400
+                        detail:
+                            type: string
+                            description: 'Человеко-читаемое описание конкретной ошибки.'
+                            example: 'Human-readable error description'
+                        instance:
+                            type: string
+                            description: 'URI запроса, где произошла ошибка.'
+                            example: '/api/bookings'
+                ValidationProblemDetails:
+                    allOf:
+                        -   $ref: '#/components/schemas/ProblemDetails'
+                        -   type: object
+                            description: 'Ошибка валидации запроса (HTTP 422).'
+                            properties:
+                                title:
+                                    type: string
+                                    example: 'Validation failed'
+                                status:
+                                    type: integer
+                                    example: 422
+                                detail:
+                                    type: string
+                                    example: 'Request validation failed'
+                                errors:
+                                    type: array
+                                    nullable: true
+                                    description: 'Список полей с ошибками валидации. Присутствует только для 422.'
+                                    items:
+                                        type: object
+                                        properties:
+                                            field:
+                                                type: string
+                                                example: 'participantsCount'
+                                            message:
+                                                type: string
+                                                example: 'participants_count must be between 1 and 10'
+
     areas: # to filter documented areas
         path_patterns:
             - ^/api(?!/doc$) # Accepts routes under /api except /api/doc
