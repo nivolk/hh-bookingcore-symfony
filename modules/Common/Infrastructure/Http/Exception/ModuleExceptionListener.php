@@ -11,6 +11,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Serializer\Exception\ExceptionInterface as SerializerExceptionInterface;
 use Symfony\Component\Serializer\Exception\NotEncodableValueException;
@@ -44,6 +45,10 @@ final readonly class ModuleExceptionListener implements EventSubscriberInterface
         $response = match (true) {
             $throwable instanceof ValidationFailedException =>
             $this->handleValidationException($throwable, $event),
+
+            $throwable instanceof UnprocessableEntityHttpException &&
+            $throwable->getPrevious() instanceof ValidationFailedException =>
+            $this->handleValidationException($throwable->getPrevious(), $event),
 
             $throwable instanceof BadRequestHttpException, $throwable instanceof NotEncodableValueException =>
             $this->handleBadRequestException($throwable, $event),
