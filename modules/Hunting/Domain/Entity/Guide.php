@@ -56,4 +56,19 @@ class Guide
     {
         $this->isActive = false;
     }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function setExperienceYears(int $experienceYears): void
+    {
+        $this->experienceYears = $experienceYears;
+    }
+
+    public function setIsActive(bool $isActive): void
+    {
+        $this->isActive = $isActive;
+    }
 }
