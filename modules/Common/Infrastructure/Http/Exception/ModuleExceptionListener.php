@@ -6,11 +6,14 @@ namespace Modules\Common\Infrastructure\Http\Exception;
 
 use Doctrine\DBAL\Exception as DBALException;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Modules\Common\Domain\Exception\BaseDomainException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Serializer\Exception\ExceptionInterface as SerializerExceptionInterface;
@@ -43,6 +46,12 @@ final readonly class ModuleExceptionListener implements EventSubscriberInterface
         $throwable = $event->getThrowable();
 
         $response = match (true) {
+            $throwable instanceof HttpExceptionInterface =>
+            $this->handleHttpException($throwable, $event),
+
+            $throwable instanceof BaseDomainException =>
+            $this->handleDomainException($throwable, $event),
+
             $throwable instanceof ValidationFailedException =>
             $this->handleValidationException($throwable, $event),
 
@@ -66,6 +75,36 @@ final readonly class ModuleExceptionListener implements EventSubscriberInterface
         };
 
         $event->setResponse($response);
+    }
+
+    private function handleHttpException(HttpExceptionInterface $throwable, ExceptionEvent $event): JsonResponse {
+        $request = $event->getRequest();
+        $status = $throwable->getStatusCode();
+
+        $title = 'HTTP error';
+        $detail = $throwable->getMessage() ?: $title;
+
+        $response = $this->problemDetails->create(
+            request: $request,
+            status: $status,
+            title: $title,
+            detail: $detail
+        );
+
+        foreach ($throwable->getHeaders() as $name => $value) {
+            $response->headers->set($name, (string) $value);
+        }
+
+        return $response;
+    }
+
+    private function handleDomainException(BaseDomainException $throwable, ExceptionEvent $event): JsonResponse {
+        return $this->problemDetails->create(
+            request: $event->getRequest(),
+            status: 400,
+            title: 'Domain error',
+            detail: $throwable->getMessage() ?: 'Domain error occurred'
+        );
     }
 
     private function handleValidationException(

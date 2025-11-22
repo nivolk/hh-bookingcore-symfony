@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Modules\Hunting\Domain\Exception;
 
-use Modules\Common\Domain\Exception\ModuleRuntimeException;
+use Modules\Common\Domain\Exception\BaseDomainException;
 
-final class GuideNotFound extends ModuleRuntimeException
+final class GuideNotFound extends BaseDomainException
 {
     public function __construct(int $id)
     {

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Modules\Hunting\Domain\Exception;
 
 use DateTimeImmutable;
-use Modules\Common\Domain\Exception\ModuleRuntimeException;
+use Modules\Common\Domain\Exception\BaseDomainException;
 
-final class GuideAlreadyBooked extends ModuleRuntimeException
+final class GuideAlreadyBooked extends BaseDomainException
 {
     public function __construct(int $id, DateTimeImmutable $date)
     {
