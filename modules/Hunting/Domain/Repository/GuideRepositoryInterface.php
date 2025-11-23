@@ -11,7 +11,11 @@ interface GuideRepositoryInterface
 {
     public function findActive(?int $minExperience = null): GuideCollection;
 
+    public function getAll(): GuideCollection;
+
     public function getById(int $id): Guide;
 
     public function save(Guide $guide): void;
+
+    public function delete(Guide $guide): void;
 }

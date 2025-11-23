@@ -33,6 +33,20 @@ final readonly class DoctrineGuideRepository implements GuideRepositoryInterface
         return GuideCollection::from($result);
     }
 
+    public function getAll(): GuideCollection
+    {
+        $qb = $this->em->createQueryBuilder()
+            ->select('g')
+            ->from(Guide::class, 'g')
+            ->orderBy('g.experienceYears', 'DESC')
+            ->addOrderBy('g.name', 'ASC');
+
+        /** @var list<Guide> $result */
+        $result = $qb->getQuery()->getResult();
+
+        return GuideCollection::from($result);
+    }
+
     public function getById(int $id): Guide
     {
         $entity = $this->em->find(Guide::class, $id);
@@ -46,6 +60,12 @@ final readonly class DoctrineGuideRepository implements GuideRepositoryInterface
     public function save(Guide $guide): void
     {
         $this->em->persist($guide);
+        $this->em->flush();
+    }
+
+    public function delete(Guide $guide): void
+    {
+        $this->em->remove($guide);
         $this->em->flush();
     }
 }
