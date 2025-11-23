@@ -53,7 +53,7 @@ final class HuntingApiTest extends WebTestCase
         $em->persist($inactive);
         $em->flush();
 
-        $client->request('GET', '/api/guides');
+        $client->request('GET', '/api/guides_active');
 
         self::assertResponseIsSuccessful();
         self::assertResponseHeaderSame('content-type', 'application/json');
@@ -94,7 +94,7 @@ final class HuntingApiTest extends WebTestCase
         $em->persist($g5);
         $em->flush();
 
-        $client->request('GET', '/api/guides?min_experience=3');
+        $client->request('GET', '/api/guides_active?min_experience=3');
 
         self::assertResponseIsSuccessful();
 
