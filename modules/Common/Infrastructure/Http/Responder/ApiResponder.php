@@ -65,4 +65,14 @@ final readonly class ApiResponder
 
         return $response;
     }
+
+    public function noContent(): JsonResponse
+    {
+        return new JsonResponse(
+            data: '',
+            status: Response::HTTP_NO_CONTENT,
+            headers: [],
+            json: true
+        );
+    }
 }
