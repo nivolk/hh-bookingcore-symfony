@@ -37,28 +37,109 @@
 
 ## Реализация
 
-Модуль построен по принципу feature-first и придерживается подхода лайтового DDD, то есть выделены основные
-слои (Domain, Application, Infrastructure), но без излишней бюрократии и оверхеда.
-
-Для удобства и быстрого запуска применена база SQLite.
+Проект следует подходу лёгкого DDD: код разделён на слои `Domain`, `Application`, `Infrastructure`, но без лишней бюрократии и оверхеда.
 
 ---
 
-## Запуск
+## Архитектура и структура каталогов
+
+Проект организован по принципу *feature-first*: функциональность вынесена в модули в `modules/`.
+
+- `modules/Common` - общая инфраструктура и базовый домен:
+  базовые типы, абстракции и исключения, HTTP-слой (`ProblemDetails` в формате RFC 7807, глобальный обработчик ошибок, базовые ответы и `ApiResponder`).
+
+- `modules/Hunting` - предметная область "охотничьи туры и бронирования":
+  доменные сущности, application-сервисы, контроллеры, репозитории и запросы/ответы.
+
+---
+
+## Запуск в Docker
+
+### Быстрый старт
+
+Для удобства локальной разработки используется `Makefile`.
 
 ```bash
-composer install
-php bin/console doctrine:migrations:migrate --no-interaction
-php bin/console doctrine:fixtures:load --group=hunting_guides --no-interaction
-php -S 127.0.0.1:8000 -t public
+# Полная инициализация проекта: контейнеры + зависимости + миграции + фикстуры
+make app-init
 ```
 
-## Тесты: 
+После этого приложение будет доступно по адресу:
+
+```text
+http://127.0.0.1:8000
+```
+
+### Ручной запуск
+
 ```bash
+docker compose up -d
+docker compose exec php-fpm composer install
+docker compose exec php-fpm php bin/console doctrine:migrations:migrate --no-interaction
+docker compose exec php-fpm php bin/console doctrine:fixtures:load --group=hunting_guides --no-interaction
+```
+
+---
+
+## Makefile: основные команды
+
+Все команды запускаются из корня проекта.
+
+```bash
+# Поднять контейнеры
+make docker-up
+make docker-up-d
+
+# Остановить контейнеры
+make docker-down
+
+# Просмотреть логи
+make docker-logs
+
+# Зайти внутрь php-fpm контейнера
+make docker-bash
+
+# Полная инициализация (контейнеры + composer install + миграции + фикстуры)
+make app-init
+
+# Миграции
+make db-migrate          # накатить все миграции
+make db-migrate-diff     # сгенерировать новую миграцию
+make db-migrate-reset    # дропнуть схему и накатить миграции заново
+
+# Фикстуры
+make db-fixtures         # залить все фикстуры
+
+# Бэкапы БД
+make backup-db                               # сохранить дамп (по умолчанию в var/backups/...)
+make backup-db BACKUP_FILE=/tmp/dump.sql     # сохранить дамп в указанный файл
+make backup-restore BACKUP_FILE=path/to.sql  # восстановить БД из дампа
+
+# Прочее
+make app-cache-clear      # очистить кеш Symfony
+make app-cache-warmup     # прогреть кеш
+make app-test             # запустить тесты
+make help                 # показать список всех доступных команд
+```
+
+---
+
+## Тесты
+
+```bash
+# Локально
 ./vendor/bin/phpunit
+
+# В Docker
+make app-test
 ```
 
-## Документация API:
-```
+---
+
+## Документация API
+
+После запуска приложения документация api доступна по адресу:
+
+```text
 http://127.0.0.1:8000/api/doc
 ```

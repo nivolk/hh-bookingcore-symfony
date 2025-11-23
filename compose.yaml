@@ -1,25 +1,48 @@
 
 services:
-###> doctrine/doctrine-bundle ###
-  database:
-    image: postgres:${POSTGRES_VERSION:-16}-alpine
+  php-fpm:
+    build:
+      context: .
+      dockerfile: docker/php-fpm/Dockerfile
+    container_name: symfony-php-fpm
+    working_dir: /var/www/html
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      # You should definitely change the password in production
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
-      POSTGRES_USER: ${POSTGRES_USER:-app}
+      APP_ENV: dev
+      APP_DEBUG: 1
+      DATABASE_URL: "mysql://app:app_password@database:3306/app?serverVersion=12.1.2-MariaDB&charset=utf8mb4"
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      database:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: symfony-nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www/html:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php-fpm
+
+  database:
+    image: mariadb:12.1.2
+    container_name: symfony-mariadb
+    environment:
+      MARIADB_DATABASE: app
+      MARIADB_USER: app
+      MARIADB_PASSWORD: app_password
+      MARIADB_ROOT_PASSWORD: root_password
     healthcheck:
-      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-app}", "-U", "${POSTGRES_USER:-app}"]
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      start_period: 30s
+      interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 60s
     volumes:
-      - database_data:/var/lib/postgresql/data:rw
-      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
-      # - ./docker/db/data:/var/lib/postgresql/data:rw
-###< doctrine/doctrine-bundle ###
+      - database_data:/var/lib/mysql
 
 volumes:
-###> doctrine/doctrine-bundle ###
   database_data:
-###< doctrine/doctrine-bundle ###
