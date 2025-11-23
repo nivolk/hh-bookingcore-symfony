@@ -11,6 +11,7 @@ use Modules\Hunting\Domain\Exception\GuideInactive;
 use Modules\Hunting\Domain\Exception\GuideNotFound;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -32,16 +33,16 @@ final readonly class HuntingExceptionListener implements EventSubscriberInterfac
 
         $response = match (true) {
             $throwable instanceof GuideNotFound =>
-            $this->createResponse($event, 404, 'Guide not found', $throwable->getMessage()),
+            $this->createResponse($event, Response::HTTP_NOT_FOUND, 'Guide not found', $throwable->getMessage()),
 
             $throwable instanceof GuideInactive =>
-            $this->createResponse($event, 422, 'Guide is inactive', $throwable->getMessage()),
+            $this->createResponse($event, Response::HTTP_UNPROCESSABLE_ENTITY, 'Guide is inactive', $throwable->getMessage()),
 
             $throwable instanceof GuideAlreadyBooked =>
-            $this->createResponse($event, 409, 'Guide already booked', $throwable->getMessage()),
+            $this->createResponse($event, Response::HTTP_CONFLICT, 'Guide already booked', $throwable->getMessage()),
 
             $throwable instanceof InvalidArgumentException =>
-            $this->createResponse($event, 422, 'Validation failed', $throwable->getMessage()),
+            $this->createResponse($event, Response::HTTP_UNPROCESSABLE_ENTITY, 'Validation failed', $throwable->getMessage()),
 
             default => null,
         };
