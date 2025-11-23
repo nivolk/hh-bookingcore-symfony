@@ -6,6 +6,7 @@ namespace Modules\Common\Infrastructure\Http\Responder;
 
 use Modules\Common\Infrastructure\Http\Response\ApiResponseInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -24,7 +25,7 @@ final readonly class ApiResponder
     /**
      * @throws ExceptionInterface
      */
-    public function success(mixed $data, int $status = 200, array $context = []): JsonResponse
+    public function success(mixed $data, int $status = Response::HTTP_OK, array $context = []): JsonResponse
     {
         if ($data instanceof ApiResponseInterface) {
             $data = $data->toPayload();
@@ -53,7 +54,7 @@ final readonly class ApiResponder
 
         $response = new JsonResponse(
             data: $json,
-            status: 201,
+            status: Response::HTTP_CREATED,
             headers: ['Content-Type' => 'application/json'],
             json: true
         );
