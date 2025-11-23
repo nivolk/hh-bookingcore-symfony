@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Modules\Hunting\Infrastructure\Http\Controller;
+namespace Modules\Hunting\Infrastructure\Http\Controller\Guide;
 
 use Modules\Common\Infrastructure\Http\Responder\ApiResponder;
-use Modules\Hunting\Domain\Repository\GuideRepositoryInterface;
+use Modules\Hunting\Application\Service\GuideService;
 use Modules\Hunting\Infrastructure\Http\Request\GuidesListRequest;
 use Modules\Hunting\Infrastructure\Http\Response\GuideListResponse;
 use Modules\Hunting\Infrastructure\Http\Response\GuideResponse;
@@ -16,7 +16,7 @@ use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
-#[Route('/guides', name: 'guides_list', methods: ['GET'])]
+#[Route('/guides_active', name: 'guides_active_list', methods: ['GET'])]
 #[OA\Get(
     description: 'Возвращает только активных гидов.',
     summary: 'Список активных гидов',
@@ -59,10 +59,10 @@ use Symfony\Component\Serializer\Exception\ExceptionInterface;
         ),
     ]
 )]
-final readonly class GuideListAction
+final readonly class GuideActiveListAction
 {
     public function __construct(
-        private GuideRepositoryInterface $guides,
+        private GuideService $guideService,
         private ApiResponder $responder
     ) {
     }
@@ -72,7 +72,7 @@ final readonly class GuideListAction
      */
     public function __invoke(#[MapQueryString] GuidesListRequest $query): JsonResponse
     {
-        $collection = $this->guides->findActive($query->minExperience);
+        $collection = $this->guideService->findActive($query->minExperience);
 
         return $this->responder->success(
             GuideListResponse::fromCollection($collection)
