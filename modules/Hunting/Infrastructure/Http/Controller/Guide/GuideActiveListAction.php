@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Modules\Hunting\Infrastructure\Http\Controller\Guide;
 
 use Modules\Common\Infrastructure\Http\Responder\ApiResponder;
-use Modules\Hunting\Application\Service\GuideService;
+use Modules\Hunting\Application\Service\Guide\GuideServiceInterface;
 use Modules\Hunting\Infrastructure\Http\Request\GuidesListRequest;
 use Modules\Hunting\Infrastructure\Http\Response\GuideListResponse;
 use Modules\Hunting\Infrastructure\Http\Response\GuideResponse;
@@ -62,7 +62,7 @@ use Symfony\Component\Serializer\Exception\ExceptionInterface;
 final readonly class GuideActiveListAction
 {
     public function __construct(
-        private GuideService $guideService,
+        private GuideServiceInterface $guideService,
         private ApiResponder $responder
     ) {
     }
