@@ -40,6 +40,7 @@
 * Развернуть prometheus & grafana
 * Настроить экспорт метрик в prometheus
 * Настроить визуализацию метрик в grafana
+* Разместить на GitLab и настроить CI/CD pipeline сборки и деплоя на VPS
 
 ---
 
