@@ -1,40 +1,34 @@
-
 services:
   php-fpm:
-    build:
-      context: .
-      dockerfile: docker/php-fpm/Dockerfile
-    container_name: symfony-php-fpm
+    image: ${APP_IMAGE_PHP:-booking-php-fpm}
+    container_name: booking-php-fpm
     working_dir: /var/www/html
     environment:
-      APP_ENV: dev
-      APP_DEBUG: 1
-      DATABASE_URL: "mysql://app:app_password@database:3306/app?serverVersion=12.1.2-MariaDB&charset=utf8mb4"
-    volumes:
-      - ./:/var/www/html
+      APP_ENV: ${APP_ENV:-prod}
+      APP_DEBUG: ${APP_DEBUG:-0}
+      DATABASE_URL: ${DATABASE_URL}
+      MESSENGER_TRANSPORT_DSN: ${MESSENGER_TRANSPORT_DSN:-doctrine://default?auto_setup=0}
+      PROM_METRICS_DSN: ${PROM_METRICS_DSN:-apcu}
     depends_on:
       database:
         condition: service_healthy
 
   nginx:
-    image: nginx:1.27-alpine
-    container_name: symfony-nginx
+    image: ${APP_IMAGE_NGINX:-booking-nginx}
+    container_name: booking-nginx
     ports:
-      - "8000:80"
-    volumes:
-      - ./:/var/www/html:ro
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - "${HTTP_PORT:-8000}:80"
     depends_on:
       - php-fpm
 
   database:
     image: mariadb:12.1.2
-    container_name: symfony-mariadb
+    container_name: booking-mariadb
     environment:
-      MARIADB_DATABASE: app
-      MARIADB_USER: app
-      MARIADB_PASSWORD: app_password
-      MARIADB_ROOT_PASSWORD: root_password
+      MARIADB_DATABASE: ${DB_NAME:-app}
+      MARIADB_USER: ${DB_USER:-app}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-app_password}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_password}
     healthcheck:
       test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
       start_period: 30s
@@ -44,5 +38,39 @@ services:
     volumes:
       - database_data:/var/lib/mysql
 
+  prometheus:
+    image: prom/prometheus:v2.54.0
+    container_name: booking-prometheus
+    volumes:
+      - prometheus_data:/prometheus
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    ports:
+      - "9090:9090"
+    depends_on:
+      - nginx
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: booking-grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_SERVER_DOMAIN=localhost
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
 volumes:
   database_data:
+  prometheus_data:
+  grafana_data:
