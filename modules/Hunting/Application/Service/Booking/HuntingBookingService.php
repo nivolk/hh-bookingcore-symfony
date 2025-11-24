@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Hunting\Application\Service;
+namespace Modules\Hunting\Application\Service\Booking;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
@@ -14,7 +14,7 @@ use Modules\Hunting\Domain\Exception\GuideNotFound;
 use Modules\Hunting\Domain\Repository\BookingRepositoryInterface;
 use Modules\Hunting\Domain\Repository\GuideRepositoryInterface;
 
-final readonly class HuntingBookingService
+final readonly class HuntingBookingService implements HuntingBookingServiceInterface
 {
     public function __construct(
         private BookingRepositoryInterface $bookingRepo,

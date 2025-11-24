@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Modules\Hunting\Infrastructure\Http\Controller;
 
 use Modules\Common\Infrastructure\Http\Responder\ApiResponder;
-use Modules\Hunting\Application\Service\HuntingBookingService;
+use Modules\Hunting\Application\Service\Booking\HuntingBookingServiceInterface;
 use Modules\Hunting\Infrastructure\Http\Request\CreateHuntingBookingRequest;
 use Modules\Hunting\Infrastructure\Http\Response\HuntingBookingCreateResponse;
 use Nelmio\ApiDocBundle\Attribute\Model;
@@ -61,7 +61,7 @@ use Symfony\Component\Serializer\Exception\ExceptionInterface;
 final readonly class HuntingBookingCreateAction
 {
     public function __construct(
-        private HuntingBookingService $service,
+        private HuntingBookingServiceInterface $service,
         private ApiResponder $responder
     ) {
     }
