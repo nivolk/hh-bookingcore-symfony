@@ -1,0 +1,189 @@
+{
+    "id": null,
+    "uid": "symfony-hunting",
+    "title": "Symfony / Hunting - Business Metrics",
+    "tags": ["symfony", "hunting", "business"],
+    "timezone": "browser",
+    "schemaVersion": 39,
+    "version": 1,
+    "refresh": "5s",
+    "editable": true,
+    "panels": [
+        {
+            "id": 1,
+            "type": "graph",
+            "title": "Booking create total (req/s)",
+            "datasource": "Prometheus",
+            "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "null",
+            "targets": [
+                {
+                    "expr": "sum(rate(hunting_booking_create_total[1m]))",
+                    "legendFormat": "all",
+                    "refId": "A"
+                }
+            ],
+            "yaxes": [
+                {
+                    "format": "reqps",
+                    "logBase": 1,
+                    "show": true
+                },
+                {
+                    "format": "short",
+                    "logBase": 1,
+                    "show": true
+                }
+            ],
+            "xaxis": {
+                "show": true,
+                "mode": "time"
+            }
+        },
+        {
+            "id": 2,
+            "type": "graph",
+            "title": "Booking create requests by result",
+            "datasource": "Prometheus",
+            "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "null",
+            "targets": [
+                {
+                    "expr": "sum(rate(hunting_booking_create_total[1m])) by (result)",
+                    "legendFormat": "{{result}}",
+                    "refId": "A"
+                }
+            ],
+            "yaxes": [
+                {
+                    "format": "reqps",
+                    "logBase": 1,
+                    "show": true
+                },
+                {
+                    "format": "short",
+                    "logBase": 1,
+                    "show": true
+                }
+            ],
+            "xaxis": {
+                "show": true,
+                "mode": "time"
+            }
+        },
+        {
+            "id": 3,
+            "type": "graph",
+            "title": "Booking create duration (p95)",
+            "datasource": "Prometheus",
+            "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "null",
+            "targets": [
+                {
+                    "expr": "histogram_quantile(0.95, sum(rate(hunting_booking_create_duration_seconds_bucket[1m])) by (le))",
+                    "legendFormat": "p95",
+                    "refId": "A"
+                }
+            ],
+            "yaxes": [
+                {
+                    "format": "s",
+                    "logBase": 1,
+                    "show": true
+                },
+                {
+                    "format": "short",
+                    "logBase": 1,
+                    "show": true
+                }
+            ],
+            "xaxis": {
+                "show": true,
+                "mode": "time"
+            }
+        },
+        {
+            "id": 4,
+            "type": "graph",
+            "title": "Guide writes by operation/result",
+            "datasource": "Prometheus",
+            "gridPos": { "h": 8, "w": 24, "x": 0, "y": 24 },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "null",
+            "targets": [
+                {
+                    "expr": "sum(rate(hunting_guide_write_total[1m])) by (operation, result)",
+                    "legendFormat": "{{operation}} / {{result}}",
+                    "refId": "A"
+                }
+            ],
+            "yaxes": [
+                {
+                    "format": "reqps",
+                    "logBase": 1,
+                    "show": true
+                },
+                {
+                    "format": "short",
+                    "logBase": 1,
+                    "show": true
+                }
+            ],
+            "xaxis": {
+                "show": true,
+                "mode": "time"
+            }
+        },
+        {
+            "id": 5,
+            "type": "graph",
+            "title": "Guide writes duration (p95)",
+            "datasource": "Prometheus",
+            "gridPos": { "h": 8, "w": 24, "x": 0, "y": 32 },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "null",
+            "targets": [
+                {
+                    "expr": "histogram_quantile(0.95, sum(rate(hunting_guide_write_duration_seconds_bucket[1m])) by (le))",
+                    "legendFormat": "p95",
+                    "refId": "A"
+                }
+            ],
+            "yaxes": [
+                {
+                    "format": "s",
+                    "logBase": 1,
+                    "show": true
+                },
+                {
+                    "format": "short",
+                    "logBase": 1,
+                    "show": true
+                }
+            ],
+            "xaxis": {
+                "show": true,
+                "mode": "time"
+            }
+        }
+    ],
+    "templating": {
+        "list": []
+    },
+    "annotations": {
+        "list": []
+    },
+    "time": {
+        "from": "now-15m",
+        "to": "now"
+    },
+    "timepicker": {}
+}
