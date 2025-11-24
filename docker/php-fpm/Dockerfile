@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     libzip-dev \
     default-mysql-client \
+    bash \
     && docker-php-ext-install \
        intl \
        pdo_mysql \
@@ -19,9 +20,9 @@ WORKDIR /var/www/html
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-RUN useradd -ms /bin/bash symfony \
-    && chown -R symfony:symfony /var/www/html
+COPY . /var/www/html
 
-USER symfony
+RUN composer install --optimize-autoloader --no-interaction \
+    && mkdir -p var/cache var/log
 
 CMD ["php-fpm"]

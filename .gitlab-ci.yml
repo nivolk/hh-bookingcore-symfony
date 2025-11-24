@@ -1,0 +1,63 @@
+stages:
+    - test
+    - build
+    - deploy
+
+variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+
+cache:
+    key: "${CI_COMMIT_REF_SLUG}-composer"
+    paths:
+        - vendor/
+    policy: pull-push
+
+test:
+    stage: test
+    image: php:8.4-cli
+    services:
+        - name: mariadb:12.1.2
+          alias: database
+    variables:
+        MYSQL_DATABASE: app
+        MYSQL_USER: app
+        MYSQL_PASSWORD: app_password
+        MYSQL_ROOT_PASSWORD: root_password
+
+        APP_ENV: test
+        DATABASE_URL: "mysql://app:app_password@database:3306/app?serverVersion=12.1.2-MariaDB&charset=utf8mb4"
+    script:
+        - chmod +x scripts/ci/test.sh
+        - ./scripts/ci/test.sh
+    artifacts:
+        when: always
+        paths:
+            - var/log
+        expire_in: 1 week
+
+build_images:
+    stage: build
+    image: docker:27.3.1
+    services:
+        - docker:27.3.1-dind
+    needs:
+        - test
+    script:
+        - chmod +x scripts/ci/build-images.sh
+        - ./scripts/ci/build-images.sh
+
+deploy_production:
+    stage: deploy
+    image: alpine:3.20
+    needs:
+        - build_images
+    environment:
+        name: production
+    script:
+        - chmod +x scripts/ci/deploy-prod.sh
+        - ./scripts/ci/deploy-prod.sh
+    when: manual
+    only:
+        - main
+        - master
