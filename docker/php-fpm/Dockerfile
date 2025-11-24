@@ -20,9 +20,16 @@ WORKDIR /var/www/html
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-COPY . /var/www/html
+COPY composer.json composer.lock ./
 
-RUN composer install --optimize-autoloader --no-interaction \
+RUN git config --global --add safe.directory /var/www/html || true \
+    && composer install \
+       --no-dev \
+       --optimize-autoloader \
+       --no-interaction \
+       --no-scripts \
     && mkdir -p var/cache var/log
+
+COPY . .
 
 CMD ["php-fpm"]
