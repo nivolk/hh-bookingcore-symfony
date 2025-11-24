@@ -31,7 +31,7 @@
 
 * Добавить простейший Unit/Feature-тест.
 * Сделать фильтр `GET /api/guides?min_experience=3`.
-* Коротко описать в README.
+* Добавить описание решения в README.
 
 ## DevOps задания
 * Докеризировать с nginx, php >8, mariadb >10
@@ -177,3 +177,8 @@ http://127.0.0.1:3000
 В Grafana доступны готовые дашборды:
 - `Hunting Booking / HTTP Metrics`: общая картина по HTTP-запросам.
 - `Hunting Booking / Hunting - Business Metrics`: метрики бронирований и операций с гидами.
+
+## CI/CD
+
+По условиям задачи CI/CD нужно было реализовываться на GitLab. 
+Клон репозитория на GitLab: https://gitlab.com/nivolk/hh-bookingcore-symfony 
