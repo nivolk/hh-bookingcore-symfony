@@ -33,6 +33,14 @@
 * Сделать фильтр `GET /api/guides?min_experience=3`.
 * Коротко описать в README.
 
+## DevOps задания
+* Докеризировать с nginx, php >8, mariadb >10
+* Добавить CRUD с операциями в БД, не менее двух сущностей
+* Прикрутить метрики prometheus, на выбор исполнителя, метрики должны иметь смысл
+* Развернуть prometheus & grafana
+* Настроить экспорт метрик в prometheus
+* Настроить визуализацию метрик в grafana
+
 ---
 
 ## Реализация
@@ -143,3 +151,28 @@ make app-test
 ```text
 http://127.0.0.1:8000/api/doc
 ```
+
+---
+
+## Мониторинг
+
+Мониторинг поднимается вместе с проектом и реализован на связке Prometheus + Grafana.
+
+Prometheus доступен по адресу:
+```text
+http://127.0.0.1:9090
+```
+
+Grafana доступен по адресу (логин/пароль: `admin` / `admin`):
+```text
+http://127.0.0.1:3000
+```
+
+В Prometheus собираются:
+- HTTP-метрики (`app_http_requests_total`, `app_http_2xx_responses_total`): количество запросов и доля успешных.
+- Бизнес-метрики бронирований (`app_booking_create__*`): попытки создать бронь и их длительность.
+- Бизнес-метрики по гидам (`app_guide_write__*`): операции create/update/delete по гидам и их длительность.
+
+В Grafana доступны готовые дашборды:
+- `Hunting Booking / HTTP Metrics`: общая картина по HTTP-запросам.
+- `Hunting Booking / Hunting - Business Metrics`: метрики бронирований и операций с гидами.
