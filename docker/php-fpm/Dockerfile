@@ -27,9 +27,11 @@ RUN git config --global --add safe.directory /var/www/html || true \
        --no-dev \
        --optimize-autoloader \
        --no-interaction \
-       --no-scripts \
-    && mkdir -p var/cache var/log
+       --no-scripts
 
 COPY . .
+
+RUN mkdir -p var/cache var/log \
+    && chown -R www-data:www-data var
 
 CMD ["php-fpm"]
