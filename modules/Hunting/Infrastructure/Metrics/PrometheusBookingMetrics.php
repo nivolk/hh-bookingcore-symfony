@@ -30,7 +30,7 @@ use Prometheus\Histogram;
  */
 final class PrometheusBookingMetrics implements BookingMetricsInterface
 {
-    private const string METRIC_NAMESPACE = 'hunting';
+    private const string METRIC_NAMESPACE = 'app';
     private const string METRIC_SUBSYSTEM = 'booking';
 
     private CollectorRegistry $registry;

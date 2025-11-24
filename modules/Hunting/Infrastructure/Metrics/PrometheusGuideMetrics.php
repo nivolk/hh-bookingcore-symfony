@@ -32,7 +32,7 @@ use Prometheus\Histogram;
  */
 final class PrometheusGuideMetrics implements GuideMetricsInterface
 {
-    private const string METRIC_NAMESPACE = 'hunting';
+    private const string METRIC_NAMESPACE = 'app';
 
     private const string METRIC_SUBSYSTEM = 'guide';
 
