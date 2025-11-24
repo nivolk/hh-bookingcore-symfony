@@ -6,6 +6,8 @@ services:
     environment:
       APP_ENV: ${APP_ENV:-prod}
       APP_DEBUG: ${APP_DEBUG:-0}
+      APP_SECRET: ${APP_SECRET}
+      DEFAULT_URI: ${DEFAULT_URI}
       DATABASE_URL: ${DATABASE_URL}
       MESSENGER_TRANSPORT_DSN: ${MESSENGER_TRANSPORT_DSN:-doctrine://default?auto_setup=0}
       PROM_METRICS_DSN: ${PROM_METRICS_DSN:-apcu}
