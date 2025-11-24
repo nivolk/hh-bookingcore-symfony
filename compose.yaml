@@ -9,6 +9,8 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       MESSENGER_TRANSPORT_DSN: ${MESSENGER_TRANSPORT_DSN:-doctrine://default?auto_setup=0}
       PROM_METRICS_DSN: ${PROM_METRICS_DSN:-apcu}
+    volumes:
+      - .env:/var/www/html/.env:ro
     depends_on:
       database:
         condition: service_healthy
