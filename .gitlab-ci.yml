@@ -1,4 +1,5 @@
 stages:
+    - test-security
     - test
     - build
     - deploy
@@ -12,6 +13,11 @@ cache:
     paths:
         - vendor/
     policy: pull-push
+
+sast:
+    stage: test-security
+include:
+    - template: Security/SAST.gitlab-ci.yml
 
 test:
     stage: test
@@ -46,6 +52,9 @@ build_images:
     script:
         - chmod +x scripts/ci/build-images.sh
         - ./scripts/ci/build-images.sh
+    only:
+        - main
+        - master
 
 deploy_production:
     stage: deploy
