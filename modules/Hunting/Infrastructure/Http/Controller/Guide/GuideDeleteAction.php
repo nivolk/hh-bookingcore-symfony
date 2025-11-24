@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Modules\Hunting\Infrastructure\Http\Controller\Guide;
 
 use Modules\Common\Infrastructure\Http\Responder\ApiResponder;
-use Modules\Hunting\Application\Service\GuideService;
+use Modules\Hunting\Application\Service\Guide\GuideServiceInterface;
 use OpenApi\Attributes as OA;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
@@ -44,7 +44,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final readonly class GuideDeleteAction
 {
     public function __construct(
-        private GuideService $guideService,
+        private GuideServiceInterface $guideService,
         private ApiResponder $responder
     ) {
     }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Hunting\Application\Service;
+namespace Modules\Hunting\Application\Service\Guide;
 
 use Modules\Hunting\Application\DTO\CreateGuideDTO;
 use Modules\Hunting\Application\DTO\UpdateGuideDTO;
@@ -10,7 +10,7 @@ use Modules\Hunting\Domain\Collection\GuideCollection;
 use Modules\Hunting\Domain\Entity\Guide;
 use Modules\Hunting\Domain\Repository\GuideRepositoryInterface;
 
-final readonly class GuideService
+final readonly class GuideService implements GuideServiceInterface
 {
     public function __construct(private GuideRepositoryInterface $guides)
     {

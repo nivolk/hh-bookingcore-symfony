@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y \
        pdo_mysql \
        zip \
        opcache \
+    && pecl install apcu \
+    && docker-php-ext-enable apcu \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/www/html

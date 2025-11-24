@@ -1,0 +1,123 @@
+{
+    "id": null,
+    "uid": "hunting-booking-http",
+    "title": "Hunting Booking / HTTP Metrics",
+    "tags": ["hunting-booking", "http"],
+    "timezone": "browser",
+    "schemaVersion": 39,
+    "version": 1,
+    "refresh": "5s",
+    "editable": true,
+    "panels": [
+        {
+            "id": 1,
+            "type": "graph",
+            "title": "HTTP requests (all)",
+            "datasource": "Prometheus",
+            "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "null",
+            "targets": [
+                {
+                    "expr": "sum(rate(app_http_requests_total[1m]))",
+                    "legendFormat": "req/s",
+                    "refId": "A"
+                }
+            ],
+            "yaxes": [
+                {
+                    "format": "reqps",
+                    "logBase": 1,
+                    "show": true
+                },
+                {
+                    "format": "short",
+                    "logBase": 1,
+                    "show": true
+                }
+            ],
+            "xaxis": {
+                "show": true,
+                "mode": "time"
+            }
+        },
+        {
+            "id": 2,
+            "type": "graph",
+            "title": "HTTP requests by route",
+            "datasource": "Prometheus",
+            "gridPos": { "h": 8, "w": 24, "x": 0, "y": 8 },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "null",
+            "targets": [
+                {
+                    "expr": "sum(rate(app_http_requests_total[1m])) by (action)",
+                    "legendFormat": "{{action}}",
+                    "refId": "A"
+                }
+            ],
+            "yaxes": [
+                {
+                    "format": "reqps",
+                    "logBase": 1,
+                    "show": true
+                },
+                {
+                    "format": "short",
+                    "logBase": 1,
+                    "show": true
+                }
+            ],
+            "xaxis": {
+                "show": true,
+                "mode": "time"
+            }
+        },
+        {
+            "id": 3,
+            "type": "graph",
+            "title": "HTTP success rate (2xx, %)",
+            "datasource": "Prometheus",
+            "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+            "lines": true,
+            "linewidth": 1,
+            "nullPointMode": "null",
+            "targets": [
+                {
+                    "expr": "sum(rate(app_http_2xx_responses_total[1m])) / sum(rate(app_http_requests_total[1m])) * 100",
+                    "legendFormat": "2xx %",
+                    "refId": "A"
+                }
+            ],
+            "yaxes": [
+                {
+                    "format": "percent",
+                    "logBase": 1,
+                    "show": true
+                },
+                {
+                    "format": "short",
+                    "logBase": 1,
+                    "show": true
+                }
+            ],
+            "xaxis": {
+                "show": true,
+                "mode": "time"
+            }
+        }
+    ],
+    "templating": {
+        "list": []
+    },
+    "annotations": {
+        "list": []
+    },
+    "time": {
+        "from": "now-15m",
+        "to": "now"
+    },
+    "timepicker": {}
+}

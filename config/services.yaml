@@ -19,11 +19,36 @@ services:
     Modules\:
         resource: '../modules/'
 
+    Prometheus\CollectorRegistry:
+        alias: 'prometheus_metrics_bundle.collector_registry'
+
     Modules\Hunting\Domain\Repository\GuideRepositoryInterface:
         alias: Modules\Hunting\Infrastructure\Doctrine\Repository\DoctrineGuideRepository
 
     Modules\Hunting\Domain\Repository\BookingRepositoryInterface:
         alias: Modules\Hunting\Infrastructure\Doctrine\Repository\DoctrineBookingRepository
+
+    Modules\Hunting\Application\Service\Guide\GuideServiceInterface:
+        alias: Modules\Hunting\Application\Service\Guide\GuideService
+
+    Modules\Hunting\Application\Service\Booking\HuntingBookingServiceInterface:
+        alias: Modules\Hunting\Application\Service\Booking\HuntingBookingService
+
+    Modules\Hunting\Application\Metrics\BookingMetricsInterface:
+        alias: Modules\Hunting\Infrastructure\Metrics\PrometheusBookingMetrics
+
+    Modules\Hunting\Application\Metrics\GuideMetricsInterface:
+        alias: Modules\Hunting\Infrastructure\Metrics\PrometheusGuideMetrics
+
+    Modules\Hunting\Application\Service\Booking\HuntingBookingServiceMetricsDecorator:
+        decorates: Modules\Hunting\Application\Service\Booking\HuntingBookingService
+        arguments:
+            $inner: '@Modules\Hunting\Application\Service\Booking\HuntingBookingServiceMetricsDecorator.inner'
+
+    Modules\Hunting\Application\Service\Guide\GuideServiceMetricsDecorator:
+        decorates: Modules\Hunting\Application\Service\Guide\GuideService
+        arguments:
+            $inner: '@Modules\Hunting\Application\Service\Guide\GuideServiceMetricsDecorator.inner'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

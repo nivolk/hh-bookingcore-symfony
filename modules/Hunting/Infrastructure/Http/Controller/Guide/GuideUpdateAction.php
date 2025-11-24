@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Modules\Hunting\Infrastructure\Http\Controller\Guide;
 
 use Modules\Common\Infrastructure\Http\Responder\ApiResponder;
-use Modules\Hunting\Application\Service\GuideService;
+use Modules\Hunting\Application\Service\Guide\GuideServiceInterface;
 use Modules\Hunting\Infrastructure\Http\Request\UpdateGuideRequest;
 use Modules\Hunting\Infrastructure\Http\Response\GuideResponse;
 use Nelmio\ApiDocBundle\Attribute\Model;
@@ -65,7 +65,7 @@ use Symfony\Component\Serializer\Exception\ExceptionInterface;
 final readonly class GuideUpdateAction
 {
     public function __construct(
-        private GuideService $guideService,
+        private GuideServiceInterface $guideService,
         private ApiResponder $responder
     ) {
     }
